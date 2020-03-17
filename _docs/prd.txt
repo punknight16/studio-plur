@@ -1,0 +1,51 @@
+feature 1
+   --landing page that collects emails <--- HI PRIORITY
+   --landing page that collects referers
+   --landing page that collects views
+   --landing page that collects unique visitors
+   --landing page that just has NEW PHOTO button, if already logged in
+
+feature 2
+  --login
+  --logout
+  --register
+  --confirm signup
+  --forgot password
+  --twitter feedback on each page
+
+
+feature 3
+  --track status of user signup
+  --send user to correct page based on signup_status
+
+feature 4
+  --show full expected user flow as link-list of empty boxes
+  --track each user's actual flow
+  --show flows in order of popularity 
+
+feature 5
+  --choose photo <--- HI PRIORITY
+  --upload photo
+  --if upload a new photo replace
+  --return user to this state after they logout and log back in
+  --reset flow
+
+feature 6
+  --one click to see motion of colors, random number of cycles <<--HI PRIORITY
+  --change number of grid items
+  --change pallette
+  --return user to this state after they logout and log back in
+  --back
+  --click to flatten layers into single png
+
+
+feature 7
+  --show video with option to skip video by paying (change video once a week)
+  --at end of video, ungray out button to send email
+  --send email
+
+feature 8
+  --back, reset video
+  --payment, 
+  --after payment, option to create message on landing page and share image
+  --return to landing page

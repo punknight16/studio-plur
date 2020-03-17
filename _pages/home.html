@@ -1,0 +1,234 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="../_static/css/styles.css" />
+	<link rel="stylesheet" href="../_static/css/toolkit.css" />
+	<link rel="stylesheet" href="../_static/css/exif.css" />
+	<link media="only screen and (max-device-width: 480px)"
+            href="../_static/css/iphone.css" type="text/css" rel="stylesheet" />
+  <link rel="apple-touch-icon" href="../_static/imgs/custom_icon.png"/>
+	<script
+		  src="https://code.jquery.com/jquery-3.4.1.js"
+		  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+		  crossorigin="anonymous"></script>
+		  <script type="text/javascript" src="../_static/build/lib/axios/dist/axios.standalone.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/rollups/hmac-sha256.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/rollups/sha256.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/components/hmac.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/components/enc-base64.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/url-template/url-template.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/sigV4Client.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/apiGatewayClient.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/simpleHttpClient.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/utils.js"></script>
+	<script type="text/javascript" src="../_static/build/apigClient.js"></script>
+	<script src="../_static/build/amazon-cognito-identity.min.js"></script>
+	<script src="../_static/build/aws-sdk.min.js"></script>
+	<script src="../_static/js/cognito.js"></script>
+	<script src="../_static/js/bundle.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+	<script src="../_static/js/html2canvas.min.js"></script>
+	<script src="../_static/js/query-string.js"></script>
+	<style id='custom-colors'>
+		
+		/**COLOR OVERLAY**/
+		.color-0 {
+			background: #FFF;
+		}
+		.color-1 {
+			background: #006BA6;
+		}
+		.color-2 {
+			background: #0496FF;
+		}
+		.color-3 {
+			background: #FFBC42;
+		}
+		.color-4 {
+			background: #D81159;
+		}
+		.color-5 {
+			background: #8F2D56;
+		}
+	</style>
+</head>
+<body>
+	<main id='main'>
+	<section id='errorSection' class='hide'>
+		<p>There was an error. You might solve it by just refreshing the page.</p>
+	</section>
+	<section id='uploadSection' >
+		
+    <input type='file' id="imgInp" />
+    
+    <div id='view-panel' class='height-width-300'>
+    	<div id='image-layer' class='layer-0' style="display:flex; justify-content:center; align-items:center;">
+    		<img id="image" src="#" alt="your image"  class='height-width-300'/>
+    	</div>
+    	<div id='css-layer' class='layer-1 height-width-300'></div>
+    </div>
+    <div id='toolkit-panel'>
+    	<p>
+    		<strong>Number of Squares</strong>
+    	</p>
+    	<div style='display:flex; justify-content:space-around'>
+				<div>
+				  <input type="radio" name='grid-size' id="gridOption1" value="option1">
+				  <label for="inlineRadio1">1x1</label>
+				</div>
+				<div>
+				  <input type="radio" name='grid-size' id="gridOption2" value="option2">
+				  <label for="inlineRadio1">4x4</label>
+				</div>
+				<div>
+				  <input type="radio" name='grid-size' id="gridOption3" value="option3">
+				  <label for="inlineRadio1">8x8</label>
+				</div>
+			</div>
+			<p>
+				<strong>Pallette Color</strong>
+				<input id='paletteInput' type='text' class="form-control" placeholder="#FFFFFF" />
+			</p>
+			<div style='display:flex; justify-content:space-around'>
+				<button id='color-1' class='btn color-1'></button>
+				<button id='color-2' class='btn color-2'></button>
+				<button id='color-3' class='btn color-3'></button>
+				<button id='color-4' class='btn color-4'></button>
+				<button id='color-5' class='btn color-5'></button>
+				<button id='color-0' class='btn color-0'></button>
+			</div>
+			<div style='display:flex; justify-content:space-around; margin-top:10px'>
+				
+			</div>
+    </div>
+    <button id='uploadButton'>Upload Pic</button>
+  </section>
+	</main>
+  <script src='../_static/js/toolkit.js'></script>
+  <script src='../_static/js/preview.js'></script>
+  
+  <script>
+  	var AppContext = {};
+  	function changeSection(section){
+			$('#errorSection').addClass('hide');
+			$('#uploadSection').addClass('hide');
+			switch(section){
+				case 'upload':
+					$('#uploadSection').removeClass('hide');
+					break;
+				default:
+					$('#errorSection').removeClass('hide');
+				}
+		}
+		var section = getParameterByName('section');
+		
+			changeSection(section);
+	  	doRefresh(function(err, cognitoUser){
+				if(err) {
+					var errText = `<p class='red' style='text-align:center;'>${err}</p>`;
+					$('#errorSection').append(errText);
+					changeSection('error');
+				} else {
+					cognitoUser.getUserAttributes(function(err, result) {
+			  		AppContext.emailAddr = result[result.length-1].getValue();
+			  		changeSection('upload');
+					});	
+				}
+			
+		});
+  </script>
+  <script>
+  	function goPayment(identityId, objectKey){
+  		//console.log("identityId: ", identityId);
+  		//console.log("objectKey: ", objectKey);
+	    var form = document.createElement("form");
+	    var element1 = document.createElement("input");
+	    form.method = "GET";
+	    form.action = "/payment";
+	    element1.value=identityId+"/"+objectKey;
+	    element1.name="imageKey";
+	    form.appendChild(element1); 
+	    document.body.appendChild(form);
+	    form.submit();
+		}
+		function dataURLtoBlob(dataurl) {
+		    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+		        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+		    while(n--){
+		        u8arr[n] = bstr.charCodeAt(n);
+		    }
+		    return new Blob([u8arr], {type:mime});
+		}
+		$('#uploadButton').on('click', function(){
+			var test = $('#view-panel').clone();
+			//console.log('test: ', test);
+			$('#main').empty();
+			$('#main').css('display', 'block');
+			$(test).appendTo('#main');
+			var isMobile = isMobileDevice();
+			//console.log("isMobile: ", isMobile);
+			//console.log("html2canvas: ", typeof html2canvas);
+			var node = document.getElementById('view-panel');
+			if(isMobile){
+			//if(true){	
+				
+				alert('I never got this to work properly on mobile. Go give it a try on a laptop!');
+				html2canvas(node).then(canvas => {
+				    var dataURL = canvas.toDataURL("image/png");
+				    doAction(AppContext.emailAddr, 'uploadsPicAndUsesTools');
+				    console.log('dataURL: ', dataURL);
+				  	console.log('hi! LOOK');
+						var $img = $('<img id="dynamic">'); //Equivalent: $(document.createElement('img'))
+						$img.attr('src', dataURL);
+						$img.appendTo('#main');
+						 
+				    //uploadImage(dataURL, goPayment);
+				});	
+			} else {
+				domtoimage.toPng(node)
+		    .then(function (dataUrl) {
+					doAction(AppContext.emailAddr, 'uploadsPicAndUsesTools');
+					/*console.log('dataUrl: ', dataUrl);
+					var img = $('<img id="dynamic">'); //Equivalent: $(document.createElement('img'))
+					img.attr('src', dataUrl);
+					img.appendTo('document');
+					*/
+					uploadImage(dataUrl, goPayment);
+		    }).catch(function(err){
+		    	console.log("err: ", err);
+		    	alert('could not flatten image');
+		    });
+		  }
+		})
+  </script>
+  <script src='../_static/js/upload.js'></script>
+  <script>
+  	function doAction(emailAddr, trueAction){
+			var params = {};
+			var body = {
+				"emailAddr": emailAddr,
+				"trueAction": trueAction
+			}
+			var additionalParams = {};
+			var apigClient = apigClientFactory.newClient();
+			console.log("apigClient: ", apigClient);
+			apigClient.doActionPost(params, body, additionalParams)
+		    .then(function(result){
+		      // Add success callback code here.
+		      console.log('result: ', result);
+		      return;
+		     
+		    }).catch( function(error){
+		      // Add error callback code here.
+		      console.log('error: ', error);
+		    });
+		}
+		function isMobileDevice() {
+		    return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+		};
+		
+
+	</script>
+  
+</body>
+</html>

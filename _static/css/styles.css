@@ -1,0 +1,41 @@
+body {
+	margin: 0;
+	padding: 0;
+}
+
+#main {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+section {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+section > * {
+	width: 300px;
+	margin-top: 4px;
+}
+section > input, section > small {
+	margin-top: 2px;
+}
+.red {
+	color: red;
+}
+.hide {
+	display: none;
+}
+.btn {
+	cursor: pointer;
+}
+.btn-link {
+	border: none;
+	text-decoration: underline;
+}
+.error {
+	background-color: pink;
+}

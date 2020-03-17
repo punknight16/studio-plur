@@ -1,0 +1,48 @@
+<html>
+<head>
+	<link rel="stylesheet" href="../_static/css/styles.css" />
+	<script
+		  src="https://code.jquery.com/jquery-3.4.1.js"
+		  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+		  crossorigin="anonymous"></script>
+	<script src="../_static/build/amazon-cognito-identity.min.js"></script>
+	<script src="../_static/build/aws-sdk.min.js"></script>
+	<script src="../_static/js/cognito.js"></script>
+	<script src="../_static/js/bundle.js"></script>
+</head>
+<body>
+	<img src="https://studio-plur-user-photos.s3.us-west-2.amazonaws.com/_data/photos/us-west-2%3A559293a1-3eb0-4804-842f-ecec01fbb934/2e04b792-4b4c-4224-9308-3143a40d83ed" width="300px" />
+	<script>
+  	/*doRefresh(function(err, creds){
+  		if(err) alert(err);
+  		else {
+  			
+  			console.log(creds);
+  		}
+  	})*/
+  </script>
+  <script>
+  /*
+  var s3 = new AWS.S3({
+			"region": "us-west-2",
+			"accessKeyId": AWS.config.credentials.accessKeyId,
+			"secretAccessKey": AWS.config.credentials.secretAccessKey
+		});
+
+var bucket = "studio-plur-user-photos"
+
+var params = {
+		Bucket: bucket,
+		Key: "_data/photos/us-west-2:559293a1-3eb0-4804-842f-ecec01fbb934/2e04b792-4b4c-4224-9308-3143a40d83ed"
+	};
+	console.log('s3 works if object: ', typeof s3);
+	s3.getObject(params, function(err, data) {
+		if (err) {
+			console.error(err);
+		} else {
+			console.log(JSON.stringify(data));
+		}
+	});*/
+  </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+goal 1 -> have html pages run without server runnning
+goal 2 -> have html pages run with server running but without aws services running
+goals 3 -> have html pages run with everything
+
+

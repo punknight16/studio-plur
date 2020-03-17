@@ -1,0 +1,287 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="../_static/css/styles.css" />
+	<link media="only screen and (max-device-width: 480px)"
+            href="../_static/css/iphone.css" type="text/css" rel="stylesheet" />
+  <link rel="apple-touch-icon" href="../_static/imgs/custom_icon.png"/>
+
+	<script
+		  src="https://code.jquery.com/jquery-3.4.1.js"
+		  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+		  crossorigin="anonymous"></script>
+	<script type="text/javascript" src="../_static/build/lib/axios/dist/axios.standalone.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/rollups/hmac-sha256.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/rollups/sha256.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/components/hmac.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/components/enc-base64.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/url-template/url-template.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/sigV4Client.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/apiGatewayClient.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/simpleHttpClient.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/utils.js"></script>
+	<script type="text/javascript" src="../_static/build/apigClient.js"></script>
+	<script src="../_static/js/query-string.js"></script>
+	<script src="../_static/build/amazon-cognito-identity.min.js"></script>
+	<script src="../_static/build/aws-sdk.min.js"></script>
+	<script src="../_static/js/cognito.js"></script>
+</head>
+<body>
+	<main id='main'>
+		<section id='emailSection' class='hide'>
+			<input id='emailInput' type='text' placeholder='email'>
+			<button id='emailButton'>Turn any Photo into a PlurPic</button>
+			<a style='text-align:center' href='./entry?section=login'><small>Already a member? ...login</small></a>
+			<div id='emailErrorPanel' class='hide' style='margin-top:60px; position:absolute;'>
+				<small><span class='red'>*</span>please enter a valid email address.</small>
+			</div>
+		</section>
+		<section id='registerSection' class="hide">
+			<input id='registerUsernameInput' type='text' placeholder='username'>
+			<input id='registerEmailInput' type='text' placeholder='email'>
+			<input id='registerPasswordInput' type='password' placeholder='password'>
+			<button id='registerButton'>Create a Password to get Started</button>
+			<a style='text-align:center' href='./entry?section=email'><small>back</small></a>
+			<div id='registerErrorPanel' class='hide' style='margin-top:60px; position:absolute;'>
+				<small class='text-color0'><span class='red'>*</span>please create a longer password that uses uppercase, lowercase, and numbers.</small>
+			</div>
+		</section>
+		
+		<section id='loginSection' class='hide'>
+		<input id='loginEmailInput' type='text' placeholder='email' required/>
+		<input id='loginPasswordInput' type='password' placeholder='password' required/>
+		<button id='loginButton'>Now just Login!</button>
+		<a style='text-align:center' href='./entry?section=reset'><small>Forgot Password?</small></a>
+		<div id='loginErrorPanel' class='' style='margin-top:60px; position:absolute;'>
+			<small><span class='red'>*</span>Make sure to confirm your email before logging in</small>
+		</div>
+		</section>
+		<section id='resetSection' class='hide'>
+			<input id='resetEmailInput' type='text' placeholder='email' required/>
+			<button id='resetButton'>Send Email to Reset Passsword</button>
+			<div id='resetErrorPanel' class='hide' style='margin-top:60px; position:absolute;'>
+				<small><span class='red'>*</span>Email can't be blank</small>
+			</div>
+		</section>
+		<section id='forgotSection' class='hide'>
+			<label for='forgotEmailInput'>Email:</label>
+			<input id='forgotEmailInput' type='text' placeholder='email' required/>
+			<label for='forgotCodeInput'>Confirmation Code:</label>
+			<input id='forgotCodeInput' type='text' placeholder='reset code' required/>
+			<label for='forgotPasswordInput'>New Password:</label>
+			<input id='forgotPasswordInput' type='password' placeholder='new password' required/>
+			<button id='forgotButton'>Submit New Password</button>
+			<div id='forgotErrorPanel' class='hide' style='margin-top:90px; position:absolute;'>
+				<small><span class='red'>*</span>no field can be blank</small>
+			</div>
+		</section>
+		<section id='errorSection'>
+			<div style='display:flex; justify-content:space-around;'>
+				<a href='./entry?section=register'>register</a>
+				<a href='./entry?section=login'>login</a>
+			</div>
+			<p style='text-align:center; margin-top:10px;'>There was an error.</p>
+		</section>
+	</main>
+	<script>
+		function changeSection(section){
+			$('#errorSection').addClass('hide');
+			$('#emailSection').addClass('hide');
+			$('#registerSection').addClass('hide');
+			$('#loginSection').addClass('hide');
+			$('#resetSection').addClass('hide');
+			$('#forgotSection').addClass('hide');
+			switch(section){
+				case 'email':
+					$('#emailSection').removeClass('hide');
+					break;
+				case 'register':
+					$('#registerSection').removeClass('hide');
+					break;
+				case 'login':
+					$('#loginSection').removeClass('hide');
+					break;
+				case 'reset':
+					$('#resetSection').removeClass('hide');
+					break;
+				case 'forgot':
+					$('#forgotSection').removeClass('hide');
+					break;
+				case 'error':
+					$('#errorSection').removeClass('hide');
+					break;
+				default:
+					$('#emailSection').removeClass('hide');
+				}
+		}
+		var section = getParameterByName('section');
+		changeSection(section);
+	</script>
+	<script>
+		$('#emailButton').on('click', function(e){
+			var emailInput = $('#emailInput').val();
+			var isValid = validateEmailInput(emailInput);
+			if(!isValid) {
+				$('#emailInput').addClass('error');
+				$('#emailErrorPanel').removeClass('hide');
+			} else {
+				doInterest(emailInput);
+				var emailLabel = `<label style='text-align:center'>${emailInput}</label>`;
+				var atIndex = emailInput.indexOf('@');
+				var usernameInput = emailInput.substring(0, atIndex);
+				var emailLabel = `<label style='text-align:center'>${emailInput}</label>`;
+				var usernameLabel = `<label style='text-align:center'>${usernameInput}</label>`;
+				//change register section
+				$('#registerEmailInput').val(emailInput);
+				$('#registerUsernameInput').val(usernameInput);
+				$('#registerEmailInput').addClass('hide');
+				$('#registerUsernameInput').addClass('hide');
+				$('#registerSection').prepend(emailLabel);
+				//change confirm section
+				changeSection('register');
+			}
+		});
+
+		$('#registerButton').on('click', function(e){
+			var emailInput = $('#registerEmailInput').val();
+			var usernameInput = $('#registerUsernameInput').val();
+			var passwordInput = $('#registerPasswordInput').val();
+			var isValid = validatePasswordInput(passwordInput);
+			if(!isValid) {
+				$('#registerPasswordInput').addClass('error');
+				$('#registerErrorPanel').removeClass('hide');
+			} else {
+
+				doRegister(emailInput, passwordInput, usernameInput, function(err, result){
+					if(err) {
+						var errText = `<p class='red' style='text-align:center;'>${err}</p>`;
+						$('#errorSection').append(errText);
+						changeSection('error');
+					} else {
+						doInterest(emailInput);
+						changeSection('login')
+					}
+				});
+			}
+		});
+		$('#loginButton').on('click', function(e){
+			var loginEmailInput = $('#loginEmailInput').val();
+			var loginPasswordInput = $('#loginPasswordInput').val();
+			var isValid = validateInput(loginEmailInput) && validateInput(loginPasswordInput);
+			if(!isValid) {
+					$('#loginEmailInput').addClass('error');
+					$('#loginPasswordInput').addClass('error');
+					$('#loginErrorPanel').removeClass('hide');
+			} else {
+				doLogin(loginEmailInput, loginPasswordInput, function(err, result){
+					if(err) {
+						var errText = `<p class='red' style='text-align:center;'>${err}</p>`;
+						$('#errorSection').append(errText);
+						changeSection('error');
+					} else {
+						goHome();		
+					}
+				});
+			}
+		});
+		$('#resetButton').on('click', function(e){
+			var resetEmailInput = $('#resetEmailInput').val();
+			var isValid = validateInput(resetEmailInput);
+			if(!isValid) {
+					$('#resetEmailInput').addClass('error');
+					$('#resetErrorPanel').removeClass('hide');
+			} else {
+				doReset(resetEmailInput, function(err, result){
+					if(err) {
+						var errText = `<p class='red' style='text-align:center;'>${err}</p>`;
+						$('#errorSection').append(errText);
+						changeSection('error');
+					} else {
+						changeSection('forgot');
+					}
+				});
+			}
+		});
+
+		$('#forgotButton').on('click', function(e){
+			var forgotEmailInput = $('#forgotEmailInput').val();
+			var forgotCodeInput = $('#forgotCodeInput').val();
+			var forgotPasswordInput = $('#forgotPasswordInput').val();
+			var isValid = validateInput(forgotEmailInput) && validateInput(forgotCodeInput) && validateInput(forgotPasswordInput);
+			if(!isValid) {
+					$('#forgotEmailInput').addClass('error');
+					$('#forgotCodeInput').addClass('error');
+					$('#forgotPasswordInput').addClass('error');
+					$('#forgotErrorPanel').removeClass('hide');
+			} else {
+				doForgot(forgotEmailInput, forgotCodeInput, forgotPasswordInput, function(err, result){
+					if(err) {
+						var errText = `<p class='red' style='text-align:center;'>${err}</p>`;
+						$('#errorSection').append(errText);
+						changeSection('error');
+					} else {
+						changeSection('login');
+					}
+				});
+			}
+		});
+		function validateInput(input){
+			if(typeof input === 'undefined' || input=='') {
+				return false 
+			} else {
+				return true;
+			}
+		}
+		function validateEmailInput(emailInput){
+			var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    	return re.test(String(emailInput).toLowerCase());
+		}
+		function validatePasswordInput(y){
+			var error = false;
+			if (y.length < 8) {
+			  error = true;
+			}
+			if (y.search(/[a-z]/) == -1) {
+			  error = true;
+			}
+			if (y.search(/[A-Z]/) == -1) {
+			  error = true;
+			}
+			if (y.search(/[0-9]/) == -1) {
+			  error = true;
+			}
+			if (error) {
+			  return false; //if there is an error return false because password is not valid.
+			} else {
+				return true;
+			}
+		}
+		function doInterest(emailAddr){
+			var params = {};
+			var body = {
+				"emailAddr": emailAddr
+			}
+			var additionalParams = {};
+			var apigClient = apigClientFactory.newClient();
+			console.log("apigClient: ", apigClient);
+			apigClient.doInterestPost(params, body, additionalParams)
+		    .then(function(result){
+		      // Add success callback code here.
+		      console.log('result: ', result);
+		      return;
+		     
+		    }).catch( function(error){
+		      // Add error callback code here.
+		      console.log('error: ', error);
+		    });
+		}
+		function goHome(){
+			var form = document.createElement("form");
+		  form.method = "GET";
+		  form.action = "./home";   
+		  document.body.appendChild(form);
+		  form.submit();
+		}
+	</script>
+</body>
+</html>

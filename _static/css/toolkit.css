@@ -1,0 +1,17 @@
+.layer-0 {
+	position: absolute;
+	z-index: 0;
+}
+.layer-1 {
+	position: absolute;
+	z-index: 1;
+	opacity:.5;
+}
+
+.btn {
+	border-radius: 4px;
+	color: #fff;
+  text-align: center;
+  cursor: pointer;
+  padding: 8px 16px 8px 16px;
+}

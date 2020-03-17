@@ -1,0 +1,150 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="stylesheet" href="../_static/css/styles.css" />
+	<link rel="stylesheet" href="../_static/css/toolkit.css" />
+	<link media="only screen and (max-device-width: 480px)"
+            href="../_static/css/iphone.css" type="text/css" rel="stylesheet" />
+  <link rel="apple-touch-icon" href="../_static/imgs/custom_icon.png"/>
+	<script
+		  src="https://code.jquery.com/jquery-3.4.1.js"
+		  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+		  crossorigin="anonymous"></script>
+	<script type="text/javascript" src="../_static/build/lib/axios/dist/axios.standalone.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/rollups/hmac-sha256.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/rollups/sha256.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/components/hmac.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/components/enc-base64.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/url-template/url-template.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/sigV4Client.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/apiGatewayClient.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/simpleHttpClient.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/utils.js"></script>
+	<script type="text/javascript" src="../_static/build/apigClient.js"></script>
+	<script src="../_static/build/amazon-cognito-identity.min.js"></script>
+	<script src="../_static/build/aws-sdk.min.js"></script>
+	<script src="../_static/js/cognito.js"></script>
+	<script src="https://js.stripe.com/v3/"></script>
+	<script src="../_static/js/payment.js"></script>
+	<script src="../_static/js/query-string.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+	<main id='main'>
+	
+	<section id='paymentSection'>
+		<div id='view-panel' style='width:300px; height:300px'>
+    	<div id='image-layer' class='layer-0'>
+    		
+    	</div>
+    	<div id='css-layer' class='layer-1' style="width:300px;opacity:.2;display:flex;justify-content:flex-end;align-items:flex-end;">
+    		<p style='margin:0px;padding-right:10px'>Studio-Plur</p>
+    	</div>
+		</div>
+		
+		<input id="cardholder-name" type="text" placeholder='name on card'/>
+		<!-- placeholder for Elements -->
+		<div id="card-element"></div>
+		<button id="card-button">Email Me Photo for $1.00</button>
+		
+		
+	</section>
+</main>
+	<script>
+		var AppContext = {};
+		/*function changeSection(section){
+			$('#errorSection').addClass('hide');
+			$('#paymentSection').addClass('hide');
+			switch(section){
+				case 'payment':
+					$('#paymentSection').removeClass('hide');
+					break;
+				default:
+					$('#errorSection').removeClass('hide');
+				}
+		}
+		var section = getParameterByName('section');
+		changeSection(section);*/
+  	$(document).ready(function(){
+	  	doRefresh(function(err, cognitoUser){
+				if(err) {
+					console.log('error: ', err);
+				} else {
+					cognitoUser.getUserAttributes(function(err, result) {
+			  		AppContext.emailAddr = result[result.length-1].getValue();
+			  		doAction(AppContext.emailAddr, 'paymentPageThenLeaves');
+					});	
+				}
+			});
+			var img = $('<img id="image" width="300px" alt="your image">'); //Equivalent: $(document.createElement('img'))
+			var imageKey = getParameterByName('imageKey');
+			var src = "https://studio-plur-user-photos.s3.us-west-2.amazonaws.com/_data/photos/"+imageKey;
+			AppContext.imageKey = imageKey;
+			img.attr('src', src);
+			img.appendTo('#image-layer');
+			$("#image").on('load', function(){
+				var height = $(this).css('height');
+				$('#css-layer').css('height', height);
+				$('#view-panel').css('height', height);
+			});
+		});
+	</script>
+	
+	<script>
+		var cardElement;
+		mountStripe(stripe, function(err, result){
+			cardElement = result;
+			cardElement.mount('#card-element');
+		});
+		
+		var cardholderName = document.getElementById('cardholder-name');
+		var cardButton = document.getElementById('card-button');	
+		
+		cardButton.addEventListener('click', function(ev) {
+			doPayment(stripe, cardElement, cardholderName, AppContext.emailAddr, AppContext.imageKey, function(err, result){
+				if(err) {
+					doAction(AppContext.emailAddr, 'paymentFails');
+					alert('payment failed ', err);
+				} else {
+					doAction(AppContext.emailAddr, 'paymentSucceeds');
+					alert('payment success: ', result);
+					doRestart();
+				}
+			});
+		});
+
+
+function doRestart(){
+    var form = document.createElement("form");
+    form.method = "GET";
+    form.action = "/entry";
+    var element1 = document.createElement("input");
+	  element1.value="email";
+	  element1.name="section";
+		form.appendChild(element1); 
+    document.body.appendChild(form);
+    form.submit();
+	}
+		function doAction(emailAddr, trueAction){
+			var params = {};
+			var body = {
+				"emailAddr": emailAddr,
+				"trueAction": trueAction
+			}
+			var additionalParams = {};
+			var apigClient = apigClientFactory.newClient();
+			console.log("apigClient: ", apigClient);
+			apigClient.doActionPost(params, body, additionalParams)
+		    .then(function(result){
+		      // Add success callback code here.
+		      console.log('result: ', result);
+		      return;
+		     
+		    }).catch( function(error){
+		      // Add error callback code here.
+		      console.log('error: ', error);
+		    });
+		}
+</script>
+</body>
+</html>

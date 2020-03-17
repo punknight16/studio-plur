@@ -1,0 +1,274 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="../_static/css/styles.css" />
+	<script
+		  src="https://code.jquery.com/jquery-3.4.1.js"
+		  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+		  crossorigin="anonymous"></script>
+	<script type="text/javascript" src="../_static/build/lib/axios/dist/axios.standalone.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/rollups/hmac-sha256.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/rollups/sha256.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/components/hmac.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/CryptoJS/components/enc-base64.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/url-template/url-template.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/sigV4Client.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/apiGatewayClient.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/simpleHttpClient.js"></script>
+	<script type="text/javascript" src="../_static/build/lib/apiGatewayCore/utils.js"></script>
+	<script type="text/javascript" src="../_static/build/apigClient.js"></script>
+	<script src="../_static/build/amazon-cognito-identity.min.js"></script>
+	<script src="../_static/build/aws-sdk.min.js"></script>
+	<script src="../_static/js/cognito.js"></script>
+
+</head>
+<body>
+	<main id='main'>
+	<section id='emailSection'>
+		<input id='emailInput' type='email' placeholder='email' required/>
+		<button id='emailButton' class='btn'>Create a PlurPic</button>
+		<button id='loginLink' class='btn btn-link'>Already a user? ...Log In</button>
+	</section>
+	<section id='indexSection' class='hide'>
+		
+		<!--<button>Confirm Email</button>-->
+		<!--<button>Change Password</button>-->
+
+	</section>
+	<section id='registerSection' class='hide'>
+		<!--<label for='registerUsernameInput'>Username:</label>-->
+		<!--<input id='registerUsernameInput' type='text' placeholder='username' required/>-->
+		<!--<label for='registerEmailInput'>Email:</label>-->
+		<!--<input id='registerEmailInput' type='text' placeholder='email' required/>-->
+		<!--<label for='registerPasswordInput'>Password:</label>-->
+		
+			
+		<label id='emailLabel' style='text-align: center'>test@mail.com</label>
+		<!--<input id='registerPasswordInput' class='error' type='password' placeholder='*password cannot be empty' required/>-->
+		<input id='registerPasswordInput' type='password' placeholder='password' required/>
+		<button id='registerButton'>Sign Up to Get Started</button>
+
+		<div style='margin-top:30px'>
+			<small><span class='red'>*</span>password must contain caps and special characters </small>
+		</div>
+
+		
+	</section>
+	<section id='confirmSection' class='hide'>
+		<label for='confirmUsernameInput'>Username:</label>
+		<input id='confirmUsernameInput' type='text' placeholder='username' required/>
+		<label for='confirmCodeInput'>Confirmation Code:</label>
+		<input id='confirmCodeInput' type='text' placeholder='confirmation code' required/>
+		<button id='confirmButton'>Submit Confirmation Code</button>
+		<button id='resetEmailButton' class='btn-link'>Reset Email</button>
+	</section>
+	<section id='loginSection' class='hide'>
+		<label for='loginUsernameInput'>Username:</label>
+		<input id='loginUsernameInput' type='text' placeholder='username' required/>
+		<label for='loginPasswordInput'>Password:</label>
+		<input id='loginPasswordInput' type='password' placeholder='password' required/>
+		<button id='loginButton'>Login to Get Started</button>
+		<button id='resetLoginButton' class='btn-link'>Forgot Password?</button>
+	</section>
+	<section id='resetSection' class='hide'>
+		<label for='resetUsernameInput'>Username:</label>
+		<input id='resetUsernameInput' type='text' placeholder='username' required/>
+		<button id='resetButton'>Send Email to Reset Passsword</button>
+	</section>
+	<section id='forgotSection' class='hide'>
+		<label for='forgotUsernameInput'>Username:</label>
+		<input id='forgotUsernameInput' type='text' placeholder='username' required/>
+		<label for='forgotCodeInput'>Confirmation Code:</label>
+		<input id='forgotCodeInput' type='text' placeholder='reset code' required/>
+		<label for='forgotPasswordInput'>New Password:</label>
+		<input id='forgotPasswordInput' type='password' placeholder='new password' required/>
+		<button id='forgotButton'>Submit New Password</button>
+	</section>
+	
+	<section id='logoutSection' class='hide'>
+		<label class='userLabel'>user@mail.com</label>
+		<button id='logoutButton'>Logout</button>
+	</section>
+	<section id='errorSection' class='hide'>
+		There was an error.
+	</section>
+</main>
+
+<script>
+	/*
+		var apigClient = apigClientFactory.newClient();
+		var params = {};
+		var body = {}; 
+		var additionalParams = {};
+
+		console.log(apigClient);
+		
+		apigClient.confirmPaymentPost(params, body, additionalParams)
+	    .then(function(result){
+	      // Add success callback code here.
+	      //console.log(result.data.body);
+	    }).catch( function(error){
+	      // Add error callback code here.
+	      console.log(error);
+	    });*/
+</script>
+<script>
+	function updateUserLabel(usernameInput){
+		
+	}
+
+	function doInterest(emailAddr, cb){
+		var params = {};
+		var body = {
+			"emailAddr": emailAddr
+		}
+		var additionalParams = {};
+		var apigClient = apigClientFactory.newClient();
+		console.log("apigClient: ", apigClient);
+		apigClient.doInterestPost(params, body, additionalParams)
+	    .then(function(result){
+	      // Add success callback code here.
+	      console.log(result);
+	      return cb(null, result.data);
+	     
+	    }).catch( function(error){
+	      // Add error callback code here.
+	      return cb(error);
+	    });
+}
+
+
+	//CLICK EMAIL BUTTON
+	$('#emailButton').on('click', async function(e){
+		var emailInput = $('#emailInput').val();
+		var usernameInput = emailInput.substring(0, emailInput.indexOf("@"));
+		updateUserLabel(usernameInput);
+		$('#emailSection').addClass('hide');
+		$('#registerSection').removeClass('hide');
+
+		//DECIDE WHICH SECTION TO GO TO BASED ON USER STATUS
+		//doInterest(emailInput)
+		//doInterest(emailInput, function(err, user_status){
+
+		/*
+		console.log("user_status: ", user_status);
+		//var user_status = 'NEW'; //NEW || UNCONFIRMED || CONFIRMED || FORGOT
+		switch(user_status){
+			case 'NEW':
+				$('#registerSection').removeClass('hide');
+				$('#registerEmailInput').val(emailInput);
+				$('#registerUsernameInput').val(usernameInput);
+				break;
+			case 'UNCONFIRMED':
+				$('#confirmSection').removeClass('hide')
+				break;
+			case 'CONFIRMED':
+				$('#loginSection').removeClass('hide');
+				break;
+			case 'RESET':
+				$('#resetSection').removeClass('hide');
+				break;
+			case 'FORGOT':
+				$('#forgotSection').removeClass('hide');
+				break;
+			case 'LOGOUT':
+				$('#logoutSection').removeClass('hide');
+				break;
+			default:
+				$('#errorSection').removeClass('hide');
+				break;
+		}
+		});*/
+});
+
+	//REGISTER FLOW
+	//CLICK PASSWORD BUTTON
+	$('#registerButton').on('click', function(e){
+		$('#registerSection').addClass('hide');
+		var usernameInput = $('#usernameInput').val();
+		var passwordInput = $('#passwordInput').val();
+		var emailInput = $('#emailInput').val();
+		doRegister(usernameInput, passwordInput, emailInput, function(err, result){
+			if(err) $('#errorSection').removeClass('hide');
+			else {
+				alert('check your email to confirm registration');
+				$('#confirmSection').removeClass('hide');
+			}
+		});
+	});
+	//CLICK Reset Email BUTTON
+	$('#resetEmailButton').on('click', function(e){
+		$('#confirmSection').addClass('hide');
+		$('#emailSection').removeClass('hide');
+	});
+	//CONFIRM PAGE
+	$('#confirmButton').on('click', function(e){
+		var confirmUsernameInput = $('#confirmUsernameInput').val();
+		var confirmCodeInput = $('#confirmCodeInput').val();
+		doConfirm(confirmUsernameInput, confirmCodeInput, function(err, result){
+			if(err) $('#errorSection').removeClass('hide');
+			else {
+				alert('confirmation received')
+				var form = document.createElement("form");
+		    form.method = "GET";
+		    form.action = "/home";   
+		    document.body.appendChild(form);
+		    form.submit();		
+			}
+		});
+	});
+	//LOGIN PAGE
+	//CLICK login BUTTON
+	$('#loginButton').on('click', function(e){
+		var loginUsernameInput = $('#loginUsernameInput').val();
+		var loginPasswordInput = $('#loginPasswordInput').val();
+		doLogin(loginUsernameInput, loginPasswordInput, function(err, result){
+			if(err) $('#errorSection').removeClass('hide');
+			else {
+				alert('login received')
+				var form = document.createElement("form");
+		    form.method = "GET";
+		    form.action = "/home";   
+		    document.body.appendChild(form);
+		    form.submit();		
+			}
+		});
+	});
+	
+	//CLICK Reset Login BUTTON
+	$('#resetLoginButton').on('click', function(e){
+		$('#loginSection').addClass('hide');
+		$('#resetSection').removeClass('hide');
+	});
+
+	$('#resetButton').on('click', function(e){
+		$('#resetSection').addClass('hide');
+		var resetUsernameInput = $('#resetUsernameInput').val();
+		doReset(resetUsernameInput, function(err, result){
+			if(err) $('#errorSection').removeClass('hide');
+			alert('reset password verification code sent to email');
+			$('#forgotSection').removeClass('hide');
+		});
+	});	
+	//FORGOT SECTION
+	$('#forgotButton').on('click', function(e){
+		$('#forgotSection').addClass('hide');
+		var forgotUsernameInput = $('#forgotUsernameInput').val();
+		var forgotCodeInput = $('#forgotCodeInput').val();
+		var forgotPasswordInput = $('#forgotPasswordInput').val();
+		
+		doForgot(forgotUsernameInput, forgotCodeInput, forgotPasswordInput, function(err, result){
+			if(err) $('#errorSection').removeClass('hide');
+			else {
+				alert('password reset confirmed');
+				$('#loginSection').removeClass('hide');
+			}
+		});
+	});
+
+	//LOGOUT PAGE
+	$('#logoutButton').on('click', function(e){
+		alert('logout clicked');
+	});
+</script>
+</body>
+</html>

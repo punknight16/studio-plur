@@ -1,0 +1,20 @@
+ok, today I launch.
+
+This is what I have to do
+
+
+1. create a query parameter entry page //NEW || REGISTER || LOGIN || CONFIRM || RESET || FORGOT - DONE
+
+2. create a frontend validation and error message system - DONE
+
+3. create a new userpool with email as the only requirement - DONE
+
+4. create doInterest for creating an email - DONE
+
+5. create doAction for adding an action to the userStatus -DONE
+
+6. make Stripe live (need to make site https); - DONE
+
+7. make each page responsive -DONE
+
+8. launch

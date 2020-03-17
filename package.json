@@ -1,0 +1,23 @@
+{
+  "name": "studio-plur",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amazon-cognito-identity-js": "^3.0.14",
+    "aws-sdk": "^2.497.0",
+    "dom-to-image": "^2.6.0",
+    "express": "^4.17.1",
+    "html2canvas": "^1.0.0-rc.3",
+    "multiparty": "4.1.1",
+    "nodemailer": "^6.3.0",
+    "stripe": "^7.4.0",
+    "uuid": "2.0.1"
+  }
+}

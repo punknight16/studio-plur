@@ -1,0 +1,38 @@
+START convo with @Fiona
+	She tested the product in person. Could not make it through the signup process.
+END
+
+START convo with @BraveNewCurrency from Startup Discord Chat
+
+		curl -v studioplur.com
+		* Could not resolve host: studioplur.com
+		curl: (6) Could not resolve host: studioplur.com
+		 
+		punknightLast Friday at 1:05 PM
+		yea, because I am using cloudfront
+		i can only do cname records
+		which means www needs to be infront
+		 
+		BraveNewCurrencyLast Friday at 1:06 PM
+		well, lots of places (Route53, CloudFlare) support ANAME records which will let you do it.
+		Tons of places use cloudfront and still have their apex work.
+		(apex = root .com record)
+
+END CONVO WITH @BraveNewCurrency
+
+
+START Convo with @Alekhya Das from Product Hunt message board:
+
+	Won't even let me see the product without making an account!
+
+END CONVO w/ @Alekhya Das
+
+START CONVO w/ @cavanah1 from Reddit
+
+
+HIM: I try to visit it but looks like its an email capture landing page. Was that the link you were trying to share? I used luguninev@rmailcloud.com as email to try functionality.
+
+ME: Once you register and verify email, you get access. Here is a quick preview of what it looks like inside: https://www.producthunt.com/posts/studioplur
+
+HIM: This is what i get still: https://imgur.com/gallery/SoYqIDM
+Then takes me to enter password. Do you regularly use any other languages in your keyboard? Maybe it’s a matter of accidentally typing the wrong o or something?
